@@ -19,6 +19,11 @@ from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 from evaluation import evaluate
 
+from tensorboardX import SummaryWriter
+
+
+writer = SummaryWriter()
+
 
 def main():
     args = get_args()
@@ -176,6 +181,11 @@ def main():
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             total_num_steps = (j + 1) * args.num_processes * args.num_steps
             end = time.time()
+            writer.add_scalar('train/mean_rewards', np.mean(episode_rewards), total_num_steps)
+            writer.add_scalar('train/min_rewards', np.min(episode_rewards), total_num_steps)
+            writer.add_scalar('train/max_rewards', np.max(episode_rewards), total_num_steps)
+            writer.add_scalar('train/value_loss', value_loss, total_num_steps)
+            writer.add_scalar('train/action_loss', action_loss, total_num_steps)
             print(
                 "Updates {}, num timesteps {}, FPS {} \n Last {} training episodes: mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}\n"
                 .format(j, total_num_steps,
