@@ -78,7 +78,7 @@ class PPO():
 
                 self.optimizer.zero_grad()
                 (value_loss * self.value_loss_coef + action_loss -
-                 (value_loss.detach() * dist_entropy2).mean()).backward()
+                 (torch.min(0.2, value_loss.detach()) * dist_entropy2).mean()).backward()
                 nn.utils.clip_grad_norm_(self.actor_critic.parameters(),
                                          self.max_grad_norm)
                 self.optimizer.step()
