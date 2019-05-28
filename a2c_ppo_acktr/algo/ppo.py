@@ -54,7 +54,7 @@ class PPO():
                         adv_targ = sample
 
                 # Reshape to do in a single forward pass for all steps
-                values, action_log_probs, dist_entropy, _ = self.actor_critic.evaluate_actions(
+                values, action_log_probs, dist_entropy, _, dist_entropy2 = self.actor_critic.evaluate_actions(
                     obs_batch, recurrent_hidden_states_batch, masks_batch,
                     actions_batch)
 
@@ -78,7 +78,7 @@ class PPO():
 
                 self.optimizer.zero_grad()
                 (value_loss * self.value_loss_coef + action_loss -
-                 value_loss.detach() * self.entropy_coef).backward()
+                 value_loss.detach() * dist_entropy2).backward()
                 nn.utils.clip_grad_norm_(self.actor_critic.parameters(),
                                          self.max_grad_norm)
                 self.optimizer.step()
